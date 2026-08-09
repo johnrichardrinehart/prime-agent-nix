@@ -72,6 +72,7 @@
 
           checks = {
             package = primeAgent;
+            kernel = import ./nix/checks/kernel.nix { inherit pkgs primeAgent version; };
             version =
               pkgs.runCommand "prime-agent-version-${version}" { nativeBuildInputs = [ primeAgent ]; }
                 ''

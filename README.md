@@ -18,6 +18,10 @@ nix --tarball-ttl 0 run github:johnrichardrinehart/prime-agent-nix
 `--tarball-ttl 0` makes Nix resolve the current repository revision instead of
 using a cached GitHub archive lookup.
 
+The package supplies a Nix-built IPython kernel and all default Python modules.
+It does not download a generic Linux Python during first use. This behavior
+keeps the kernel compatible with NixOS and supports offline kernel startup.
+
 ## Install declaratively
 
 Use the package directly from a flake input:

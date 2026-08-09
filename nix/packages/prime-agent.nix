@@ -12,6 +12,8 @@
   ninja,
   pkg-config,
   python3,
+  python313,
+  runCommand,
   pixman,
   cairo,
   pango,
@@ -34,6 +36,39 @@ let
     fd
     uv
   ];
+  kernelPythonEnv = python313.withPackages (
+    ps: with ps; [
+      beautifulsoup4
+      dill
+      httpx
+      ipykernel
+      lxml
+      mcp
+      nest-asyncio
+      numpy
+      pandas
+      pillow
+      pydantic
+      python-dotenv
+      pyyaml
+      requests
+      scipy
+      tomli
+      tyro
+    ]
+  );
+  kernelPython =
+    runCommand "prime-agent-kernel-python-${version}" { nativeBuildInputs = [ makeWrapper ]; }
+      ''
+        mkdir -p "$out/bin" "$out/lib"
+        cp -r ${src}/prime-agent-runtime/src/. "$out/lib/"
+        for sourceDir in ${src}/packages/coding-agent/skills/*/src; do
+          cp -r "$sourceDir"/. "$out/lib/"
+        done
+        makeWrapper ${kernelPythonEnv}/bin/python "$out/bin/python" \
+          --prefix PYTHONPATH : "$out/lib" \
+          --set PYTHONDONTWRITEBYTECODE 1
+      '';
 in
 buildNpmPackage' {
   pname = "prime-agent";
@@ -102,6 +137,7 @@ buildNpmPackage' {
     makeWrapper ${nodejs}/bin/node "$out/bin/prime-agent" \
       --add-flags "$packageDir/dist/bundle/cli.js" \
       --set PI_PACKAGE_DIR "$packageDir" \
+      --set-default PRIME_AGENT_KERNEL_PYTHON "${kernelPython}/bin/python" \
       --set PRIME_AGENT_LAUNCHER_PATH "$out/bin/prime-agent" \
       --prefix NODE_PATH : "$out/lib/node_modules" \
       --suffix PATH : "${runtimeBins}" \
@@ -109,6 +145,8 @@ buildNpmPackage' {
 
     runHook postInstall
   '';
+
+  passthru = { inherit kernelPython; };
 
   meta = {
     description = "Self-improving RLM agent for coding and long-running autonomous tasks";
