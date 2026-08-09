@@ -11,8 +11,8 @@ workflow starts during periods of high load.
 ## Run
 
 ```console
-nix run --tarball-ttl 0 github:johnrichardrinehart/prime-agent-nix -- --version
-nix run --tarball-ttl 0 github:johnrichardrinehart/prime-agent-nix
+nix --tarball-ttl 0 run github:johnrichardrinehart/prime-agent-nix -- --version
+nix --tarball-ttl 0 run github:johnrichardrinehart/prime-agent-nix
 ```
 
 `--tarball-ttl 0` makes Nix resolve the current repository revision instead of
